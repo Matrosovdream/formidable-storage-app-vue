@@ -19,7 +19,19 @@ const loadSites = async () => {
   loading.value = true;
   error.value = '';
   try {
-    sites.value = await sitesApi.list();
+    const base = await sitesApi.list();
+    sites.value = base;
+    const detailed = await Promise.all(
+      base.map(async (s) => {
+        try {
+          const full = await sitesApi.view(s.id);
+          return { ...s, ...full };
+        } catch {
+          return s;
+        }
+      })
+    );
+    sites.value = detailed;
   } catch (e) {
     error.value = 'Failed to load sites.';
     sites.value = [];
