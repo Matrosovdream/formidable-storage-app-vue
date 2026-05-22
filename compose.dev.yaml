@@ -1,0 +1,29 @@
+# Dev compose — source-mounted, Vite dev server with HMR.
+#
+# Usage:
+#   docker compose -f compose.dev.yaml up --build
+#   → open http://localhost:7070
+#
+# Env (optional, defaults shown):
+#   APP_NAME             — container name (default "formidable-storage-app-dev")
+#   DEV_PORT             — host port to expose Vite on (default 7070)
+#   VITE_API_BASE_URL    — backend API base URL the SPA should call
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: ${APP_NAME:-formidable-storage-app}-dev:latest
+    container_name: ${APP_NAME:-formidable-storage-app}-dev
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "${DEV_PORT:-7070}:7070"
+    volumes:
+      # Mount source for HMR, but keep container's node_modules so the host's
+      # platform-specific binaries don't shadow the linux ones.
+      - .:/app
+      - /app/node_modules

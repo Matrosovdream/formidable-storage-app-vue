@@ -1,0 +1,16 @@
+node_modules
+dist
+.vite
+.git
+.gitignore
+.DS_Store
+*.log
+coverage
+.env
+.env.local
+.env.*.local
+project-reference
+project-plan
+backend-api
+tests
+README.md
