@@ -11,7 +11,14 @@ export const routes = [
   { path: '/dashboard/sites/add', name: 'dashboard-site-add', component: () => import('@/pages/sites/SiteAdd.vue'), meta: { requiresAuth: true } },
   { path: '/dashboard/sites/:site_id', name: 'dashboard-site-view', component: () => import('@/pages/sites/SiteView.vue'), meta: { requiresAuth: true }, props: true },
 
-  { path: '/dashboard/data', name: 'dashboard-data', component: () => import('@/pages/data/DataEntries.vue'), meta: { requiresAuth: true } },
+  { path: '/dashboard/data', name: 'dashboard-data', component: () => import('@/pages/data/DataIndex.vue'), meta: { requiresAuth: true } },
+  {
+    path: '/dashboard/data/:site_id',
+    name: 'dashboard-data-site',
+    component: () => import('@/pages/data/DataSite.vue'),
+    meta: { requiresAuth: true },
+    props: true,
+  },
   {
     path: '/dashboard/data/:site_id/entry/:entry_id',
     name: 'dashboard-data-entry',

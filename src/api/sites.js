@@ -1,5 +1,18 @@
 import { http } from './http';
 
+function normalizePaginator(payload) {
+  if (!payload) return { items: [], pagination: { current_page: 1, last_page: 1, per_page: 25, total: 0 } };
+  return {
+    items: Array.isArray(payload.data) ? payload.data : [],
+    pagination: {
+      current_page: payload.current_page ?? 1,
+      last_page: payload.last_page ?? 1,
+      per_page: payload.per_page ?? 25,
+      total: payload.total ?? 0,
+    },
+  };
+}
+
 export async function list() {
   const { data } = await http.get('/api/sites/list');
   return Array.isArray(data?.data) ? data.data : [];
@@ -25,6 +38,16 @@ export async function create(payload) {
 export async function remove(siteId) {
   const { data } = await http.delete(`/api/sites/delete/${siteId}`);
   return data;
+}
+
+export async function emails(siteId, params = {}) {
+  const { data } = await http.get(`/api/sites/view/${siteId}/emails`, { params });
+  return normalizePaginator(data);
+}
+
+export async function entryUpdates(siteId, params = {}) {
+  const { data } = await http.get(`/api/sites/view/${siteId}/entry-updates`, { params });
+  return normalizePaginator(data);
 }
 
 export async function generateEmails(siteId, { amount, length } = {}) {

@@ -54,7 +54,7 @@ const selectTab = (t) => {
   if (t === 'emails' && !emailsLoaded.value) loadEmails();
 };
 
-const back = () => router.push({ name: 'dashboard-data' });
+const back = () => router.push({ name: 'dashboard-data-site', params: { site_id: props.site_id } });
 
 const showEmailModal = ref(false);
 const viewingEmail = ref(null);
