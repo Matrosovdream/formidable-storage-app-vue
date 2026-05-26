@@ -4,7 +4,7 @@
 #   APP_NAME             — short slug used as Traefik router/service name (e.g. "formidable-storage-app")
 #   APP_HOST             — public hostname Traefik should match (e.g. "app.example.com")
 #   VITE_API_BASE_URL    — backend API base URL, baked into the bundle at build time
-#   TRAEFIK_CERTRESOLVER — name of the Traefik certresolver configured on the host (default "le")
+#   TRAEFIK_CERTRESOLVER — name of the Traefik certresolver configured on the host (default "letsencrypt")
 
 services:
   web:
@@ -18,26 +18,15 @@ services:
     container_name: ${APP_NAME}
     restart: unless-stopped
     networks:
-      - traefik
+      - traefik-network
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik"
-
-      # HTTP -> HTTPS redirect
-      - "traefik.http.routers.${APP_NAME}-http.rule=Host(`${APP_HOST}`)"
-      - "traefik.http.routers.${APP_NAME}-http.entrypoints=web"
-      - "traefik.http.routers.${APP_NAME}-http.middlewares=${APP_NAME}-redirect"
-      - "traefik.http.middlewares.${APP_NAME}-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.${APP_NAME}-redirect.redirectscheme.permanent=true"
-
-      # HTTPS
+      - "traefik.docker.network=traefik-network"
       - "traefik.http.routers.${APP_NAME}.rule=Host(`${APP_HOST}`)"
       - "traefik.http.routers.${APP_NAME}.entrypoints=websecure"
-      - "traefik.http.routers.${APP_NAME}.tls=true"
-      - "traefik.http.routers.${APP_NAME}.tls.certresolver=${TRAEFIK_CERTRESOLVER:-le}"
-      - "traefik.http.routers.${APP_NAME}.service=${APP_NAME}"
+      - "traefik.http.routers.${APP_NAME}.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}"
       - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=80"
 
 networks:
-  traefik:
+  traefik-network:
     external: true
