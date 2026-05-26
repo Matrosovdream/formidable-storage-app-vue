@@ -50,24 +50,27 @@ export async function entryUpdates(siteId, params = {}) {
   return normalizePaginator(data);
 }
 
-export async function generateEmails(siteId, { amount, length } = {}) {
+export async function generateEmails(siteId, { amount, length, concurrent } = {}) {
   const params = {};
   if (amount != null) params.amount = amount;
   if (length != null) params.length = length;
+  if (concurrent != null) params.concurrent = concurrent ? 'true' : 'false';
   const { data } = await http.post(`/api/sites/generate/${siteId}/emails`, null, { params });
   return data;
 }
 
-export async function generateFields(siteId, { amount } = {}) {
+export async function generateFields(siteId, { amount, concurrent } = {}) {
   const params = {};
   if (amount != null) params.amount = amount;
+  if (concurrent != null) params.concurrent = concurrent ? 'true' : 'false';
   const { data } = await http.post(`/api/sites/generate/${siteId}/fields`, null, { params });
   return data;
 }
 
-export async function generateEntryUpdates(siteId, { amount } = {}) {
+export async function generateEntryUpdates(siteId, { amount, concurrent } = {}) {
   const params = {};
   if (amount != null) params.amount = amount;
+  if (concurrent != null) params.concurrent = concurrent ? 'true' : 'false';
   const { data } = await http.post(`/api/sites/generate/${siteId}/entry-updates`, null, { params });
   return data;
 }

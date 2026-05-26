@@ -241,8 +241,9 @@ const GENERATORS = {
     label: 'Emails',
     fn: sitesApi.generateEmails,
     fields: [
-      { name: 'amount', label: 'Amount', min: 1, max: 10000, default: 10 },
-      { name: 'length', label: 'Length (chars)', min: 1, max: 100000, default: 200 },
+      { name: 'amount', label: 'Amount', type: 'number', min: 1, max: 10000, default: 10 },
+      { name: 'length', label: 'Length (chars)', type: 'number', min: 1, max: 100000, default: 200 },
+      { name: 'concurrent', label: 'Concurrent', type: 'boolean', default: false },
     ],
     reloadTab: 'emails',
   },
@@ -251,7 +252,8 @@ const GENERATORS = {
     label: 'Entry updates',
     fn: sitesApi.generateEntryUpdates,
     fields: [
-      { name: 'amount', label: 'Amount', min: 1, max: 10000, default: 10 },
+      { name: 'amount', label: 'Amount', type: 'number', min: 1, max: 10000, default: 10 },
+      { name: 'concurrent', label: 'Concurrent', type: 'boolean', default: false },
     ],
     reloadTab: 'updates',
   },
@@ -291,6 +293,10 @@ const submitGenerate = async () => {
     const payload = {};
     for (const f of generator.value.fields) {
       const raw = generateParams.value[f.name];
+      if (f.type === 'boolean') {
+        payload[f.name] = Boolean(raw);
+        continue;
+      }
       const num = Number(raw);
       if (!Number.isFinite(num)) throw new Error(`${f.label} must be a number`);
       if (num < f.min || num > f.max) throw new Error(`${f.label} must be between ${f.min} and ${f.max}`);
@@ -772,18 +778,28 @@ onMounted(async () => {
         </div>
 
         <form v-if="!generateResult" class="space-y-3" @submit.prevent="submitGenerate">
-          <div v-for="f in generator?.fields || []" :key="f.name">
-            <label class="block text-xs font-medium text-slate-500 mb-1">
-              {{ f.label }} <span class="text-slate-400">({{ f.min }}–{{ f.max }})</span>
+          <template v-for="f in generator?.fields || []" :key="f.name">
+            <label v-if="f.type === 'boolean'" class="flex items-center gap-2 text-sm text-slate-700">
+              <input
+                v-model="generateParams[f.name]"
+                type="checkbox"
+                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              {{ f.label }}
             </label>
-            <input
-              v-model.number="generateParams[f.name]"
-              type="number"
-              :min="f.min"
-              :max="f.max"
-              class="w-full rounded border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+            <div v-else>
+              <label class="block text-xs font-medium text-slate-500 mb-1">
+                {{ f.label }} <span class="text-slate-400">({{ f.min }}–{{ f.max }})</span>
+              </label>
+              <input
+                v-model.number="generateParams[f.name]"
+                type="number"
+                :min="f.min"
+                :max="f.max"
+                class="w-full rounded border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </template>
 
           <p v-if="generateError" class="text-sm text-rose-600">{{ generateError }}</p>
 
